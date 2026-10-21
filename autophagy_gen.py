@@ -82,7 +82,11 @@ def autophagy_gen(
         # --- Calcolo degli indici per il subset del round ---
         chunk_size = int(len(train_data) / g)
         start_idx = t * chunk_size
-        end_idx = min((t + 1) * chunk_size, len(train_data)) # Impedisce l'Out of Bounds
+
+        if t == g - 1:
+            end_idx = len(train_data)
+        else:
+            end_idx = min((t + 1) * chunk_size, len(train_data))
         
         # Se start_idx supera la lunghezza del dataset, interrompiamo il ciclo
         if start_idx >= len(train_data):

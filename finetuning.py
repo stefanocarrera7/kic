@@ -12,14 +12,14 @@ def finetune_model(
     lr: float = 1e-5,
     batch_size: int = 2,
     grad_accum: int = 8,
-    max_seq_length: int = 750,    
+    max_seq_length: int = 2048,    
     lora_r: int = 16,
     lora_alpha: int = 16,
     lora_dropout: float = 0,
     target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
     pack_to_max: bool = True,
     resume_adapter_repo: str | None = None,
-    seed:str = 42
+    seed:int = 42
     ) -> tuple[Any, Any]:
     """
     Fine-tuning universale con gestione dinamica del template di prompt.
@@ -27,29 +27,33 @@ def finetune_model(
     model_type: accetta 'llama' (default) o 'qwen'.
     """
   
-    # 1) Caricamento Modello Base
+    # 1) Caricamento Modello
+    target_model_name = resume_adapter_repo if resume_adapter_repo else base_model_id
+
     model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name = base_model_id,
+        model_name = target_model_name,
         max_seq_length = max_seq_length,
         dtype = None,
         load_in_4bit = True,
         device_map = {"": 0},
     )
 
-    # Gestione specifica per Qwen (Pad Token)
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-
     # 2) Configurazione PEFT
     if resume_adapter_repo:
         print(f"🔄 Riprendo l'addestramento dall'adapter: {resume_adapter_repo}")
-        # Carichiamo l'adapter sopra il modello base e abilitiamo esplicitamente l'addestramento sui pesi LoRA
-        model = PeftModel.from_pretrained(model, resume_adapter_repo, is_trainable=True)
-        
-        # Riattiviamo il gradient checkpointing per risparmiare VRAM, che potrebbe perdersi col caricamento diretto di PeftModel
-        if hasattr(model, "enable_input_require_grads"):
-            model.enable_input_require_grads()
-        model.gradient_checkpointing_enable()
+        # Riconverte l'adapter caricato in trainable con i kernel Unsloth attivi
+        model = FastLanguageModel.get_peft_model(
+            model,
+            r = lora_r,
+            lora_alpha = lora_alpha,
+            lora_dropout = lora_dropout,
+            target_modules = target_modules,
+            use_gradient_checkpointing = "unsloth",
+            random_state = seed,
+            bias = "none",
+            use_rslora = False,
+            loftq_config = None,
+        )
     else:
         print("🆕 Inizializzazione di un nuovo adapter LoRA...")
         model = FastLanguageModel.get_peft_model(
@@ -65,6 +69,9 @@ def finetune_model(
             loftq_config = None,
         )
 
+    # Gestione specifica per Qwen (Pad Token)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
     EOS_TOKEN = tokenizer.eos_token 
     
     def formatting_prompts(ex):
