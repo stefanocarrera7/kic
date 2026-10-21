@@ -1,36 +1,54 @@
 from datasets import load_dataset
 
-ds = load_dataset("stefanocarrera/kic_D_leetcode-javascript-raw", split = "train")
+# Carica l'intero DatasetDict (sia 'train' che 'test')
+ds = load_dataset("stefanocarrera/kic_D_leetcode-javascript-raw")
 
-# ========= estrazione natural language description ==========
+# ========= ESTRAZIONE NATURAL LANGUAGE DESCRIPTION =========
 def extract_prompt(example):
-    text = example['content']
+    text = example.get("content")
     if text is None:
-        return {'prompt_nl': None}
-    
+        return {"prompt_nl": None}
+
     # Prende solo ciò che precede la prima occorrenza di "**Example 1"
     clean_text = text.split("**Example 1")[0].rstrip()
-    
-    return {'prompt_nl': clean_text}
+    return {"prompt_nl": clean_text}
 
-# Applica la modifica
+# .map su DatasetDict agisce in automatico su ogni split
 ds = ds.map(extract_prompt)
-# print("Esempio di prompt estratto:")
-# print(ds[0]['prompt_nl'])  # Stampa il prompt estratto del primo
-# ================================================================
 
+# ========= AGGIUNTA COLONNA PROMPT (JAVASCRIPT) =========
+def format_js_prompt(row):
+    prompt_nl = row.get("prompt_nl")
+    if not prompt_nl:
+        return {"prompt": None}
 
-# ========= aggiunta colonna prompt ==========
-def format_jsdoc(text: str) -> str:
-    # Gestisce ogni riga: aggiunge " *" se vuota/spazi, altrimenti " * " + riga
-    formatted_body = "\n".join(
+    # Formattazione JSDoc standard (senza indentazione \t perché non c'è una classe wrapper)
+    lines = [
         f" * {line.strip()}" if line.strip() else " *"
-        for line in text.strip().splitlines()
-    )
-    return f"/**\n{formatted_body}\n */\n"
+        for line in prompt_nl.strip().splitlines()
+    ]
+    formatted_body = "\n".join(lines)
 
-# Aggiunge la nuova colonna 'prompt' (o 'full_prompt')
-ds = ds.map(lambda row: {
-    "prompt": format_jsdoc(row["prompt_nl"]) if row["prompt_nl"] is not None else None
-})
-# =============================================
+    prompt = (
+        "Complete the following JavaScript function:\n"
+        "/**\n"
+        f"{formatted_body}\n"
+        " */\n"
+    )
+    return {"prompt": prompt}
+
+ds = ds.map(format_js_prompt)
+
+# ============================================
+HF_USERNAME = "stefanocarrera"
+repo_id = f"{HF_USERNAME}/kic_D_leetcode-js"
+
+print(f"Caricamento su {repo_id} (Train: {len(ds['train'])}, Test: {len(ds['test'])})...")
+
+# Push dell'intero DatasetDict con entrambi gli split
+ds.push_to_hub(
+    repo_id=repo_id,
+    private=False
+)
+
+print("Caricamento completato!")

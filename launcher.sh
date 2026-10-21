@@ -42,7 +42,7 @@ for i in "${!MODELS[@]}"; do
                 --model_key "$MODEL_KEY" \
                 --temp "$TEMP" \
                 --run_id "$RUN_ID" \
-                --seed "$SEED" \
+                --seed "$SEED"
 
             # Piccola pausa opzionale per far "respirare" la GPU e il filesystem
             echo "Sessione terminata. Pulizia cache in corso..."

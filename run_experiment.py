@@ -32,7 +32,7 @@ def run_single_experiment():
     # resume_model_id = f"stefanocarrera/autophagycode_M_mercury_{model_key}_lr0.0001_c142_{args.strategy}_t{args.temp}_g{start_round}_{args.run_id}"
 
     try:
-        autophagy.autophagy(
+        autophagy.autophagy_gen(
             base_model_id=args.model_id,
             data_lang="java",
             g=10,
