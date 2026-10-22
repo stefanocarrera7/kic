@@ -9,7 +9,7 @@ MODEL_KEYS=("qwen_4b")
 
 
 # Definisci le temperature
-TEMPERATURES=(0.5 1 1.5) # Esempio: (0.2 1.0)
+TEMPERATURES=(1 1.5) # Esempio: (0.2 1.0)
 
 # Definisci le run e i seed (associati per indice)
 # RUN_IDS=("run0" "run1" "run2") # Esempio: (run0 run1 run2)

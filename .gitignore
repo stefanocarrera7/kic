@@ -2,3 +2,5 @@
 __pycache__/
 unsloth_compiled_cache/
 unsloth_venv/
+runs/
+results.csv

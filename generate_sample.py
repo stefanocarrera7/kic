@@ -8,7 +8,7 @@ def generate_sample(data,
                     tokenizer,
                     n_solutions:int = 1,
                     temperature: float = 1,
-                    max_new_t = 300,
+                    max_new_t = 512,
                     top_p: float = 0.95,
                     save_token_log: bool = False
                     ) -> Dataset:
