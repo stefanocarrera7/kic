@@ -24,13 +24,5 @@ def gen_n_push(data_id:str, model_id:str):
     out_data.push_to_hub(f"{data_id}_{model_id.replace('/', '_')}_vllm_gen", token=True)
 
 
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
     gen_n_push()
