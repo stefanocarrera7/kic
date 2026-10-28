@@ -1,3 +1,4 @@
+from pydoc import text
 import re
 import os
 import tempfile
@@ -576,3 +577,52 @@ public class Main {{
                 "test_outputs": results,
                 "extracted_code": sol_code
             }
+        
+
+
+import re
+
+
+class PythonEvalPipeline:
+
+    @staticmethod
+    def extract_function_code(llm_output:str) -> str:
+        """
+        Estrae la funzione generata tramite regex
+        """
+        if not llm_output:
+            return None
+
+        # SE C'E' UN BLOCCO MARKDOWN ```python ... ```
+        matches = list(re.finditer("```python", llm_output))
+        if matches:
+            text = llm_output[matches[-1].end():]
+            matches = list(re.finditer("```", text))
+            if matches:
+                extracted_code = text[:matches[0].start()]
+                return extracted_code.strip()
+            else:
+                return text.strip()
+        else:
+            # SE NON C'E' UN BLOCCO MARKDOWN, CERCA ```
+            matches = list(re.finditer("```", llm_output))
+            if matches:
+                extracted_code = llm_output[matches[-1].end():]
+                return extracted_code.strip()
+            else:
+                return llm_output.strip()
+
+    @staticmethod
+    def extract_entry(llm_output: str) -> str:
+        """
+        Estrae il nome della funzione generata tramite regex
+        """
+
+        extracted_code = PythonEvalPipeline.extract_function_code(llm_output)
+
+        pattern = r"def\s+(\w+)\s*\("
+        entries = re.findall(pattern, extracted_code)
+
+        return entries[-1] if entries else None
+
+

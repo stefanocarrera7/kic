@@ -1,5 +1,6 @@
 import math
 import json
+from typing import Optional
 from datasets import Dataset
 from vllm import LLM, SamplingParams
 
@@ -21,6 +22,7 @@ def generate_sample(
     temperature: float = 1.0,
     max_new_t: int = 512,
     top_p: float = 0.95,
+    seed: Optional[int] = None,
     save_token_log: bool = False,
     k_logprobs: int = 5
 ) -> Dataset:
@@ -42,6 +44,7 @@ def generate_sample(
         top_p=top_p,
         max_tokens=max_new_t,
         min_tokens=3,
+        seed=seed,
         logprobs=k_logprobs if save_token_log else None
     )
 

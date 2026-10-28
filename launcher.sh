@@ -4,12 +4,14 @@
 # MODELS=("unsloth/Qwen3-4B-Base-unsloth-bnb-4bit" "unsloth/Qwen3-8B-Base-unsloth-bnb-4bit") # Aggiungi altri qui separati da spazio
 # MODEL_KEYS=("qwen_4b" "qwen_8b")
 
+export HF_TOKEN="xxx"
+
 MODELS=("unsloth/Qwen3-4B-Base-unsloth-bnb-4bit") # Aggiungi altri qui separati da spazio
 MODEL_KEYS=("qwen_4b")
 
 
 # Definisci le temperature
-TEMPERATURES=(1 1.5) # Esempio: (0.2 1.0)
+TEMPERATURES=(0.5 1 1.5) # Esempio: (0.2 1.0)
 
 # Definisci le run e i seed (associati per indice)
 # RUN_IDS=("run0" "run1" "run2") # Esempio: (run0 run1 run2)

@@ -34,7 +34,7 @@ def run_single_experiment():
     try:
         autophagy.autophagy_gen(
             base_model_id=args.model_id,
-            data_lang="java",
+            data_lang="python",
             g=10,
             lr=1e-4,
             start_round=start_round,                     

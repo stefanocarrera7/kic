@@ -6,33 +6,19 @@ ds = load_dataset("stefanocarrera/kic_D_leetcode-python-raw")
 # ========= ESTRAZIONE NATURAL LANGUAGE DESCRIPTION =========
 def extract_prompt(example):
     text = example.get("content")
-    if text is None:
-        return {"prompt_nl": None}
 
-    clean_text = text.split("**Example 1")[0].rstrip()
-    return {"prompt_nl": clean_text}
+    task_desc = text.split("**Example 1")[0].rstrip()
+    entry = example.get("slug").replace("-", "_")
+
+    prefix = "Write only the code. Do not include explanations, markdown text, or reasoning outside the code block.\n Solve the following task:\n"
+    func_init = f"```python\ndef {entry}("
+
+    prompt = prefix + task_desc + '\n' + func_init
+
+    return {"prompt":prompt}
 
 ds = ds.map(extract_prompt)
 
-# ========= AGGIUNTA COLONNA PROMPT (PYTHON SENZA CLASSE) =========
-def format_python_prompt(row):
-    prompt_nl = row.get("prompt_nl")
-    if not prompt_nl:
-        return {"prompt": None}
-
-    lines = [
-        f"# {line.strip()}" if line.strip() else "#"
-        for line in prompt_nl.strip().splitlines()
-    ]
-    formatted_body = "\n".join(lines)
-
-    prompt = (
-        "Continue the following Python code:\n"
-        f"{formatted_body}\n"
-    )
-    return {"prompt": prompt}
-
-ds = ds.map(format_python_prompt)
 
 # ============================================
 HF_USERNAME = "stefanocarrera"

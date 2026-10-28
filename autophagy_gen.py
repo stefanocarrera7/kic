@@ -2,7 +2,7 @@ import gc
 import os
 import shutil
 import torch
-from generate_sample import generate_sample
+from generate_sample_batch import generate_sample
 from datasets import load_dataset
 from unsloth import FastLanguageModel
 from finetuning import finetune_model
@@ -67,7 +67,7 @@ def autophagy_gen(
 
         # --- Generazione del dataset per il test ---  
         print(f"\nGenerating synthetic test set for generation {t}...")
-        test_synth = generate_sample(test_data, gen_model, gen_tok,
+        test_synth = generate_sample(gen_model, gen_tok, test_data,
                                         n_solutions=1,
                                         temperature=temperature, top_p=top_p,
                                         save_token_log=save_token_log)

@@ -1,16 +1,16 @@
 from datasets import load_dataset
 import time
 
-ds = load_dataset("stefanocarrera/kic_D_leetcode-java", split = "train")
+ds = load_dataset("stefanocarrera/kic_D_leetcode-python", split = "train")
 sub_ds = ds.select(range(10))
 
 
 import torch
 from unsloth import FastLanguageModel
-from generate_sample import generate_sample
+from generate_sample_batch import generate_sample
 
 model, tok = FastLanguageModel.from_pretrained(
-    model_name = "unsloth/Qwen2.5-Coder-1.5B",
+    model_name = "unsloth/Qwen2.5-Coder-0.5B",
     max_seq_length = 2048,
     dtype = torch.float16,
     load_in_4bit = True,
